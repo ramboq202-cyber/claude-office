@@ -350,9 +350,10 @@ async function askAI() {
         const data = await response.json();
 
         if (!response.ok) {
-
-            throw new Error(
-                data.error || "Terjadi kesalahan."
+    responseBox.innerText =
+        "Error: " + JSON.stringify(data, null, 2);
+    return;
+}
             );
 
         }
