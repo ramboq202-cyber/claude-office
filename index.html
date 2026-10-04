@@ -3,22 +3,337 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Claude Office</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f7f7f5;
+            color: #222;
+            height: 100vh;
+        }
+
+        .app {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 240px;
+            background: #1f1f1f;
+            color: white;
+            padding: 25px 15px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 35px;
+            padding-left: 10px;
+        }
+
+        .menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .menu button {
+            background: transparent;
+            border: none;
+            color: #ddd;
+            text-align: left;
+            padding: 13px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .menu button:hover {
+            background: #333;
+            color: white;
+        }
+
+        /* MAIN */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            height: 65px;
+            background: white;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+        }
+
+        .topbar h2 {
+            font-size: 18px;
+        }
+
+        .status {
+            font-size: 13px;
+            color: #777;
+        }
+
+        /* CONTENT */
+        .content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+
+        .workspace {
+            width: 100%;
+            max-width: 850px;
+            text-align: center;
+        }
+
+        .workspace h1 {
+            font-size: 38px;
+            margin-bottom: 10px;
+        }
+
+        .workspace p {
+            color: #777;
+            margin-bottom: 30px;
+        }
+
+        /* CHAT BOX */
+        .chat-box {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            border: none;
+            outline: none;
+            resize: none;
+            font-size: 16px;
+            padding: 10px;
+        }
+
+        .bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+
+        .hint {
+            color: #999;
+            font-size: 13px;
+        }
+
+        .ask-btn {
+            background: #222;
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .ask-btn:hover {
+            background: #444;
+        }
+
+        /* MOBILE */
+        @media (max-width: 700px) {
+
+            .sidebar {
+                width: 70px;
+                padding: 20px 8px;
+            }
+
+            .logo {
+                font-size: 0;
+                text-align: center;
+            }
+
+            .logo::after {
+                content: "C";
+                font-size: 24px;
+            }
+
+            .menu button {
+                text-align: center;
+                font-size: 0;
+            }
+
+            .menu button::first-letter {
+                font-size: 20px;
+            }
+
+            .topbar {
+                padding: 0 15px;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .workspace h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-    <h1>Claude Office</h1>
-    <p>AI Productivity Workspace</p>
+<div class="app">
 
-    <textarea
-        placeholder="Tulis sesuatu di sini..."
-        rows="10"
-        cols="50">
-    </textarea>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
 
-    <br><br>
+        <div class="logo">
+            Claude Office
+        </div>
 
-    <button>Ask AI</button>
+        <div class="menu">
+
+            <button onclick="showMessage('Document')">
+                📄 Document
+            </button>
+
+            <button onclick="showMessage('Spreadsheet')">
+                📊 Spreadsheet
+            </button>
+
+            <button onclick="showMessage('Presentation')">
+                📽️ Presentation
+            </button>
+
+            <button onclick="showMessage('AI Chat')">
+                💬 AI Chat
+            </button>
+
+            <button onclick="showMessage('Files')">
+                📁 Files
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <header class="topbar">
+
+            <h2 id="pageTitle">
+                Claude Office
+            </h2>
+
+            <div class="status">
+                ● Workspace Ready
+            </div>
+
+        </header>
+
+
+        <section class="content">
+
+            <div class="workspace">
+
+                <h1>
+                    What can I help you with?
+                </h1>
+
+                <p>
+                    Create documents, analyze data, and work smarter with AI.
+                </p>
+
+
+                <div class="chat-box">
+
+                    <textarea
+                        id="prompt"
+                        placeholder="Ask Claude Office anything...">
+                    </textarea>
+
+
+                    <div class="bottom">
+
+                        <div class="hint">
+                            AI Productivity Workspace
+                        </div>
+
+                        <button
+                            class="ask-btn"
+                            onclick="askAI()">
+                            Ask AI
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script>
+
+function askAI() {
+
+    const prompt =
+        document.getElementById("prompt").value;
+
+    if (prompt.trim() === "") {
+
+        alert("Silakan tulis pertanyaan terlebih dahulu.");
+
+        return;
+    }
+
+    alert(
+        "AI belum terhubung.\n\n" +
+        "Pertanyaan kamu:\n" +
+        prompt
+    );
+}
+
+
+function showMessage(page) {
+
+    document.getElementById("pageTitle").innerText =
+        page;
+
+    document.getElementById("prompt").placeholder =
+        "Apa yang ingin kamu lakukan di " + page + "?";
+
+}
+
+</script>
 
 </body>
 </html>
