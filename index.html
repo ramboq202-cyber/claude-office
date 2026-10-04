@@ -376,7 +376,7 @@ async function askAI() {
     } catch (error) {
 
         responseBox.innerText =
-            "Error: " + error.message;
+            "Error: " + JSON.stringify(error, null, 2);
 
     } finally {
 
