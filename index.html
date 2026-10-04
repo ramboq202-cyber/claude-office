@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Claude Office</title>
 
     <style>
@@ -25,7 +24,6 @@
             height: 100vh;
         }
 
-        /* SIDEBAR */
         .sidebar {
             width: 240px;
             background: #1f1f1f;
@@ -62,7 +60,6 @@
             color: white;
         }
 
-        /* MAIN */
         .main {
             flex: 1;
             display: flex;
@@ -88,7 +85,6 @@
             color: #777;
         }
 
-        /* CONTENT */
         .content {
             flex: 1;
             display: flex;
@@ -113,7 +109,6 @@
             margin-bottom: 30px;
         }
 
-        /* CHAT BOX */
         .chat-box {
             background: white;
             border: 1px solid #ddd;
@@ -159,9 +154,17 @@
             background: #444;
         }
 
-        /* MOBILE */
-        @media (max-width: 700px) {
+        .response {
+            margin-top: 20px;
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            white-space: pre-wrap;
+            display: none;
+        }
 
+        @media (max-width: 700px) {
             .sidebar {
                 width: 70px;
                 padding: 20px 8px;
@@ -180,10 +183,6 @@
             .menu button {
                 text-align: center;
                 font-size: 0;
-            }
-
-            .menu button::first-letter {
-                font-size: 20px;
             }
 
             .topbar {
@@ -205,7 +204,6 @@
 
 <div class="app">
 
-    <!-- SIDEBAR -->
     <aside class="sidebar">
 
         <div class="logo">
@@ -214,23 +212,23 @@
 
         <div class="menu">
 
-            <button onclick="showMessage('Document')">
+            <button onclick="changePage('Document')">
                 📄 Document
             </button>
 
-            <button onclick="showMessage('Spreadsheet')">
+            <button onclick="changePage('Spreadsheet')">
                 📊 Spreadsheet
             </button>
 
-            <button onclick="showMessage('Presentation')">
+            <button onclick="changePage('Presentation')">
                 📽️ Presentation
             </button>
 
-            <button onclick="showMessage('AI Chat')">
+            <button onclick="changePage('AI Chat')">
                 💬 AI Chat
             </button>
 
-            <button onclick="showMessage('Files')">
+            <button onclick="changePage('Files')">
                 📁 Files
             </button>
 
@@ -239,7 +237,6 @@
     </aside>
 
 
-    <!-- MAIN -->
     <main class="main">
 
         <header class="topbar">
@@ -249,7 +246,7 @@
             </h2>
 
             <div class="status">
-                ● Workspace Ready
+                ● Online
             </div>
 
         </header>
@@ -279,15 +276,21 @@
                     <div class="bottom">
 
                         <div class="hint">
-                            AI Productivity Workspace
+                            Claude AI
                         </div>
 
                         <button
                             class="ask-btn"
+                            id="askButton"
                             onclick="askAI()">
                             Ask AI
                         </button>
 
+                    </div>
+
+                    <div
+                        class="response"
+                        id="response">
                     </div>
 
                 </div>
@@ -303,33 +306,91 @@
 
 <script>
 
-function askAI() {
+async function askAI() {
 
     const prompt =
-        document.getElementById("prompt").value;
+        document.getElementById("prompt").value.trim();
 
-    if (prompt.trim() === "") {
+    const responseBox =
+        document.getElementById("response");
+
+    const button =
+        document.getElementById("askButton");
+
+    if (!prompt) {
 
         alert("Silakan tulis pertanyaan terlebih dahulu.");
 
         return;
     }
 
-    alert(
-        "AI belum terhubung.\n\n" +
-        "Pertanyaan kamu:\n" +
-        prompt
-    );
+    button.disabled = true;
+    button.innerText = "Thinking...";
+
+    responseBox.style.display = "block";
+    responseBox.innerText = "Claude sedang berpikir...";
+
+    try {
+
+        const response = await fetch(
+            "https://claude-office-api.ramboq202.workers.dev/",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    message: prompt
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error || "Terjadi kesalahan."
+            );
+
+        }
+
+        if (
+            data.content &&
+            data.content.length > 0
+        ) {
+
+            responseBox.innerText =
+                data.content
+                    .map(item => item.text)
+                    .join("\n");
+
+        } else {
+
+            responseBox.innerText =
+                "Claude tidak memberikan jawaban.";
+        }
+
+    } catch (error) {
+
+        responseBox.innerText =
+            "Error: " + error.message;
+
+    } finally {
+
+        button.disabled = false;
+        button.innerText = "Ask AI";
+
+    }
 }
 
 
-function showMessage(page) {
+function changePage(page) {
 
-    document.getElementById("pageTitle").innerText =
-        page;
-
-    document.getElementById("prompt").placeholder =
-        "Apa yang ingin kamu lakukan di " + page + "?";
+    document.getElementById("pageTitle")
+        .innerText = page;
 
 }
 
